@@ -4,8 +4,9 @@
   "description": "a proof-of-concept chat server for WarsawJS Workshop #5",
   "main": "server.js",
   "scripts": {
-    "test": "mocha test",
-    "start": "node server.js"
+    "test": "echo 'No test specified' && exit 1",
+    "start": "node server.js",
+    "clean": "rm -rf auth.db"
   },
   "keywords": [
     "chat",
