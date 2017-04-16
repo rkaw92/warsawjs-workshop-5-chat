@@ -50,11 +50,15 @@ function handleCommandLine(commandLine) {
         authenticateClient();
       }
     },
+    register: function(login, password) {
+      socket.emit('register', { login, password });
+      clientStatus.credentials = { login, password };
+    },
     quit: function() {
       socket.close();
       process.stdout.clearLine();
       process.stdout.cursorTo(0);
-      process.stdout.write('# Goodbye and thanks for using CHAT!' + EOL);
+      process.stdout.write('# So long and thanks for all the fish!' + EOL);
       process.exit();
     }
   };
@@ -80,12 +84,13 @@ cli.on('line', function handleLine(line) {
     // Recognize commands:
     if (line[0] === '/') {
       handleCommandLine(line);
-    } else {
+    } else if (line.length > 0) {
       handleChatLine(line);
     }
   } catch (error) {
     writeLine('# Error: %s', error.message);
   }
+  // After handling each line, prompt the user for next input:
   cli.prompt();
 });
 
@@ -113,6 +118,16 @@ socket.on('auth', function({ success, error, login }) {
     writeLine('# Logged in as %s.', login);
   } else {
     writeLine('# Failed to log in - reason: %s', error.message);
+  }
+});
+socket.on('register', function({ success, error, login }) {
+  if (success) {
+    writeLine('# Registered as %s.', login);
+    if (clientStatus.connected) {
+      authenticateClient();
+    }
+  } else {
+    writeLine('# Failed to register new user - reason: %s', error.message);
   }
 });
 socket.on('join', function({ login }) {

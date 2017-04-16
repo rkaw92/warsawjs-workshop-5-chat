@@ -15,7 +15,7 @@ const logger = bunyan.createLogger({
   stream: process.stdout,
   serializers: bunyan.stdSerializers
 });
-const authenticator = new authenticators.DummyAuthenticator({ logger });
+const authenticator = new authenticators.LevelAuthenticator();
 const httpServer = http.createServer();
 const chatServer = new ChatServer({
   logger,
