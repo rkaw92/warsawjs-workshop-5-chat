@@ -1,0 +1,28 @@
+{
+  "name": "warsawjs-workshop-5-chat",
+  "version": "0.1.0",
+  "description": "a proof-of-concept chat server for WarsawJS Workshop #5",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha test",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "chat",
+    "server",
+    "warsawjs",
+    "workshop",
+    "socket.io"
+  ],
+  "author": "Robert Kawecki <robert+npm@rkaw.pl>",
+  "license": "MIT",
+  "dependencies": {
+    "bunyan": "^1.8.10",
+    "jsonwebtoken": "^7.3.0",
+    "level": "^1.6.0",
+    "level-promisify": "^2.0.1",
+    "socket.io": "^1.7.3",
+    "socket.io-client": "^1.7.3",
+    "when": "^3.7.8"
+  }
+}
