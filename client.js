@@ -115,6 +115,7 @@ socket.on('chat', function(data) {
 });
 socket.on('auth', function({ success, error, login }) {
   if (success) {
+    cli.setPrompt(login + ': ');
     writeLine('# Logged in as %s.', login);
   } else {
     writeLine('# Failed to log in - reason: %s', error.message);
