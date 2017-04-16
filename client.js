@@ -28,7 +28,8 @@ const cli = require('readline').createInterface({
   input: process.stdin,
   output: process.stdout
 });
-cli.setPrompt('> ');
+const defaultPrompt = '> ';
+cli.setPrompt(defaultPrompt);
 
 const clientStatus = {
   connected: false,
@@ -105,6 +106,7 @@ socket.on('connect', function() {
 });
 socket.on('disconnect', function() {
   clientStatus.connected = false;
+  cli.setPrompt(defaultPrompt);
   writeLine('# Disconnected from chat server.');
 });
 socket.on('error', function(error) {
