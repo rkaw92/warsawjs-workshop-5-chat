@@ -45,6 +45,17 @@ function authenticateClient() {
 
 function handleCommandLine(commandLine) {
   const commands = {
+    help: function() {
+      writeLine('#### Usage ####');
+      writeLine('To execute commands, type a slash (/) followed by command name.');
+      writeLine('To send a chat message, simply type a line of text without a leading slash.');
+      writeLine('Messages from other users are displayed as they come. Note that you will usually need to login in order to participate in chats.');
+      writeLine('Available commands:');
+      writeLine('/login <login> <password> - set the username/password to be used upon connection and log in');
+      writeLine('/register <login> <password> - create a new account on the server');
+      writeLine('/quit - close the connection and exit the chat client');
+      writeLine('###############');
+    },
     login: function(login, password) {
       clientStatus.credentials = { login, password };
       if (clientStatus.connected) {
