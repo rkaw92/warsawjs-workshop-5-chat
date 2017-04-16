@@ -20,6 +20,7 @@
   "dependencies": {
     "bcrypt-as-promised": "^1.1.0",
     "bunyan": "^1.8.10",
+    "colors": "^1.1.2",
     "jsonwebtoken": "^7.3.0",
     "level": "^1.6.0",
     "level-promisify": "^2.0.1",

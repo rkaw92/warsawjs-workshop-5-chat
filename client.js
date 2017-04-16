@@ -5,6 +5,7 @@
 const SocketClient = require('socket.io-client');
 const EOL = require('os').EOL;
 const util = require('util');
+const colors = require('colors/safe');
 
 // ### Helper functions ###
 
@@ -33,7 +34,7 @@ cli.setPrompt(defaultPrompt);
 
 const clientStatus = {
   connected: false,
-  authenticated: true,
+  authenticated: false,
   credentials: null
 };
 
@@ -46,15 +47,15 @@ function authenticateClient() {
 function handleCommandLine(commandLine) {
   const commands = {
     help: function() {
-      writeLine('#### Usage ####');
-      writeLine('To execute commands, type a slash (/) followed by command name.');
+      writeLine(colors.gray('#### Usage ####'));
+      writeLine(('To execute commands, type a slash (/) followed by command name.'));
       writeLine('To send a chat message, simply type a line of text without a leading slash.');
       writeLine('Messages from other users are displayed as they come. Note that you will usually need to login in order to participate in chats.');
       writeLine('Available commands:');
       writeLine('/login <login> <password> - set the username/password to be used upon connection and log in');
       writeLine('/register <login> <password> - create a new account on the server');
       writeLine('/quit - close the connection and exit the chat client');
-      writeLine('###############');
+      writeLine(colors.gray('###############'));
     },
     login: function(login, password) {
       clientStatus.credentials = { login, password };
@@ -85,12 +86,16 @@ function handleCommandLine(commandLine) {
 }
 
 function handleChatLine(chatLine) {
-  socket.emit('chat', { body: chatLine });
+  if (clientStatus.authenticated) {
+    socket.emit('chat', { body: chatLine });
+  } else {
+    writeLine('# (Message not sent - you are not logged in)');
+  }
 }
 
-writeLine('# CHAT CLIENT v1');
-writeLine('# - For help, type /help');
-writeLine('# Connecting to [ %s ]...', options.URL);
+writeLine(colors.gray('# CHAT CLIENT v1'));
+writeLine(colors.gray('# - For help, type /help'));
+writeLine(colors.yellow('# Connecting to [ %s ]...'), options.URL);
 cli.on('line', function handleLine(line) {
   try {
     // Recognize commands:
@@ -110,43 +115,52 @@ cli.on('line', function handleLine(line) {
 
 socket.on('connect', function() {
   clientStatus.connected = true;
-  writeLine('# Connected.');
+  clientStatus.authenticated = false;
+  writeLine(colors.yellow('# Connected.'));
   if (clientStatus.credentials) {
     authenticateClient();
   }
 });
 socket.on('disconnect', function() {
   clientStatus.connected = false;
+  clientStatus.authenticated = false;
   cli.setPrompt(defaultPrompt);
-  writeLine('# Disconnected from chat server.');
+  writeLine(colors.yellow('# Disconnected from chat server.'));
 });
 socket.on('error', function(error) {
-  writeLine('# Socket error: %s', error);
+  writeLine(colors.red('# Socket error: %s', error));
 });
 socket.on('chat', function(data) {
-  writeLine('%s: %s', data.from, data.body);
+  // Special case: if the message came from another connection but from
+  //  our login, display this fact to the user:
+  if (data.from === clientStatus.credentials.login) {
+    writeLine(colors.blue('%s (other connection): ') + '%s', data.from, data.body);
+  } else {
+    writeLine(colors.blue('%s: ') + '%s', data.from, data.body);
+  }
 });
 socket.on('auth', function({ success, error, login }) {
   if (success) {
     cli.setPrompt(login + ': ');
-    writeLine('# Logged in as %s.', login);
+    clientStatus.authenticated = true;
+    writeLine(colors.yellow('# Logged in as %s.'), login);
   } else {
-    writeLine('# Failed to log in - reason: %s', error.message);
+    writeLine(colors.red('# Failed to log in - reason: %s'), error.message);
   }
 });
 socket.on('register', function({ success, error, login }) {
   if (success) {
-    writeLine('# Registered as %s.', login);
+    writeLine(colors.yellow('# Registered as %s.'), login);
     if (clientStatus.connected) {
       authenticateClient();
     }
   } else {
-    writeLine('# Failed to register new user - reason: %s', error.message);
+    writeLine(colors.red('# Failed to register new user - reason: %s'), error.message);
   }
 });
 socket.on('join', function({ login }) {
-  writeLine('# joins: %s', login);
+  writeLine(colors.blue('# joins: %s'), login);
 });
 socket.on('leave', function({ login }) {
-  writeLine('# leaves: %s', login);
+  writeLine(colors.blue('# leaves: %s'), login);
 });
